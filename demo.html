@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+            crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.11.0/umd/popper.min.js"
+            integrity="sha384-b/U6ypiBEHpOf/4+1nzFpr53nxSS+GLCkfwBdFNTxtclqqenISfwAzpKaMNFNmj4"
+            crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta/js/bootstrap.min.js"
+            integrity="sha384-h0AbiXch4ZDo7tp9hKZ4TsHbi047NrKGLO3SEJAg45jXxnGIfYzk4Si90RDIqNm1"
+            crossorigin="anonymous"></script>
+    <link href="https://cdn.bootcss.com/openlayers/4.6.5/ol.css" rel="stylesheet">
+    <script src="https://cdn.bootcss.com/openlayers/4.6.5/ol.js"></script>
+
+
+</head>
+<body>
+<div id="map"></div>
+<script>
+    var wkt = 'GEOMETRYCOLLECTION(POLYGON((109.57031806879168 19.160154678134482,124.41407045297747 15.742186226157706,121.09375318460589 26.09374813011126,110.1562549934413 25.898436534528955,109.57031806879168 19.160154678134482)),POLYGON((142.38281928158062 27.460935938482507,134.76562999344128 19.25781272662185,154.00390826320904 18.47656034243606,134.37500380134838 38.886718529587014,142.38281928158062 27.460935938482507)))';
+
+    var format = new ol.format.WKT();
+
+    var feature = format.readFeature(wkt, {
+        // dataProjection: 'EPSG:4326',
+        // featureProjection: 'EPSG:3857'
+    });
+
+    var styles = [
+        new ol.style.Style({
+            stroke: new ol.style.Stroke({
+                color: 'blue',
+                width: 3
+            }),
+            fill: new ol.style.Fill({
+                color: 'rgba(0, 0, 255, 0.1)'
+            })
+        }),
+        new ol.style.Style({
+            image: new ol.style.Circle({
+                radius: 5,
+                fill: new ol.style.Fill({
+                    color: 'orange'
+                })
+            }),
+        })
+    ];
+
+    var vector = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: [feature]
+        }),
+        style: styles
+    });
+    var gaodeMapLayer = new ol.layer.Tile({
+        source: new ol.source.XYZ({
+            url: 'http://wprd0{1-4}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&style=7&x={x}&y={y}&z={z}'
+        })
+    });
+
+    // 根据坐标绘制直线
+
+    var coords = [[120, 30], [121, 31], [121, 32]];
+
+    var lineStyle = new ol.style.Style({
+        stroke: new ol.style.Stroke(({
+            width: 10
+        }))
+    });
+
+    var layerLines = new ol.layer.Vector({
+        style: lineStyle,
+        source: new ol.source.Vector({
+            features: [new ol.Feature({
+                geometry: new ol.geom.LineString(coords),
+                name: 'Line'
+            })]
+        }),
+    });
+
+    // 绘制面
+    var fa = new ol.layer.Vector({
+        source: new ol.source.Vector({
+            features: [new ol.Feature({
+                geometry: new ol.geom.Polygon(
+                    [[[120, 30],
+                        [119, 29],
+                        [119, 28],
+                        [120,30]]]
+                ),
+                name: 'pg'
+            })]
+        }),
+    });
+
+    var map = new ol.Map({
+        layers: [gaodeMapLayer, vector, layerLines,fa],
+        view: new ol.View({
+            center: [120, 30],
+            projection: 'EPSG:4326',
+            zoom: 5
+        }),
+        target: 'map'
+    });
+</script>
+</body>
+</html>
